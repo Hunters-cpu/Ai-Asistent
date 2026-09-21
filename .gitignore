@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# WhatsApp session (JANGAN di-commit!)
+sessions/
+auth_info_baileys/
+*.session
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.code-workspace
+
+# Build
+dist/
+build/
+tmp/
+temp/
+
+# Coverage
+coverage/
+.nyc_output/
