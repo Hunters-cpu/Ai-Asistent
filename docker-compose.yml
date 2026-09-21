@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  hunzweb-o51w:
+    build: .
+    container_name: hunzweb-o51w
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-gemini-2.5-flash}
+      - AI_TEMPERATURE=${AI_TEMPERATURE:-0.7}
+      - AI_MAX_TOKENS=${AI_MAX_TOKENS:-500}
+      - AUTO_REPLY=${AUTO_REPLY:-true}
+      - AI_NAME=HunzAI-O51W
+      - BOT_NAME=HunzWeb-O51W
+    volumes:
+      - ./sessions:/app/sessions
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
