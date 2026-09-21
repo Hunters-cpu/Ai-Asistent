@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HunzWeb-O51W - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="storage-badge offline" id="storageBadge">
+  <span class="pulse"></span>
+  <i class="fas fa-plug"></i>
+  <span id="storageLabel">Menghubungkan...</span>
+</div>
+
+<header class="top-nav">
+  <div class="nav-brand">
+    <i class="fas fa-robot"></i>
+    HunzWeb-O51W
+  </div>
+  <nav class="nav-links">
+    <button class="nav-link active" data-view="view-dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+    <button class="nav-link" data-view="view-connection"><i class="fas fa-qrcode"></i> Koneksi</button>
+    <button class="nav-link" data-view="view-ai-settings"><i class="fas fa-brain"></i> HunzAI-O51W</button>
+    <button class="nav-link" data-view="view-chats"><i class="fas fa-comments"></i> Percakapan</button>
+    <button class="nav-link" data-view="view-contacts"><i class="fas fa-address-book"></i> Kontak</button>
+  </nav>
+</header>
+
+<div class="app-container">
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view-section active">
+      <div class="hero-section">
+        <h1>🤖 HunzWeb-O51W</h1>
+        <p>Dashboard profesional untuk menghubungkan <b>HunzAI-O51W</b> (powered by Google Gemini) ke WhatsApp Anda. Balasan otomatis real-time dengan session persistence & auto-reconnect.</p>
+        <div class="hero-buttons">
+          <button class="btn btn-dark" onclick="App.showView('view-connection')"><i class="fas fa-plug"></i> Hubungkan WhatsApp</button>
+          <button class="btn btn-outline" onclick="App.showView('view-ai-settings')"><i class="fas fa-brain"></i> Atur HunzAI-O51W</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-circle-item">
+          <div class="circle-icon"><i class="fas fa-comments"></i></div>
+          <div><h4 id="statMsgToday">0</h4><p>Pesan Sesi Ini</p></div>
+        </div>
+        <div class="stat-circle-item">
+          <div class="circle-icon"><i class="fas fa-users"></i></div>
+          <div><h4 id="statContacts">0</h4><p>Kontak</p></div>
+        </div>
+        <div class="stat-circle-item">
+          <div class="circle-icon"><i class="fas fa-bolt"></i></div>
+          <div><h4 id="statResponse">-</h4><p>Respons AI</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sidebar-header">
+          <h3>Log Real-time</h3>
+          <button class="btn btn-outline btn-sm" onclick="App.clearLog()"><i class="fas fa-trash"></i> Bersihkan</button>
+        </div>
+        <div class="activity-log" id="activityLog"></div>
+      </div>
+
+      <div class="card guide-section">
+        <div class="guide-title">Panduan<br>Menghubungkan<br>WhatsApp</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div class="step-text"><h4>Buka WhatsApp</h4><p>Di ponsel yang terhubung dengan nomor bot.</p></div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-text"><h4>Perangkat Tertaut</h4><p>Menu → Perangkat Tertaut → Tautkan Perangkat.</p></div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-text"><h4>Scan QR / Kode Pairing</h4><p>Arahkan kamera ke QR atau masukkan kode 8 digit.</p></div></div>
+          <div class="step-item"><div class="step-num">4</div><div class="step-text"><h4>HunzAI-O51W Aktif</h4><p>AI otomatis membalas pesan pelanggan Anda.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KONEKSI -->
+    <section id="view-connection" class="view-section">
+      <div class="card">
+        <div id="connectionConnected" style="display:none;">
+          <div class="connected-state">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h2 style="font-size:22px;margin-bottom:8px;">WhatsApp Terhubung!</h2>
+            <p style="color:var(--text-muted);font-size:14px;">HunzAI-O51W aktif dan siap menerima pesan</p>
+            <div class="device-info">
+              <div class="device-row"><span>Nomor</span><span id="connectedNumber">-</span></div>
+              <div class="device-row"><span>Nama</span><span id="connectedName">-</span></div>
+              <div class="device-row"><span>AI</span><span>HunzAI-O51W</span></div>
+              <div class="device-row"><span>Status</span><span style="color:var(--success);">● Aktif</span></div>
+            </div>
+            <button class="btn btn-danger" onclick="App.disconnectWhatsApp()"><i class="fas fa-power-off"></i> Putuskan Koneksi</button>
+          </div>
+        </div>
+
+        <div id="connectionFlow">
+          <div class="tabs-container">
+            <button class="tab-pill active" data-tab="qr">Scan QR Code</button>
+            <button class="tab-pill" data-tab="pairing">Kode Pairing</button>
+          </div>
+
+          <div id="tab-qr" class="connection-grid">
+            <div class="qr-box">
+              <div class="qr-loading" id="qrLoading">
+                <div class="spinner"></div>
+                <p style="font-size:12px;color:#888;">Menunggu QR dari WhatsApp...</p>
+              </div>
+              <img id="qrImage" style="display:none;" alt="QR Code">
+            </div>
+            <div>
+              <h3 style="font-size:18px;margin-bottom:8px;">Scan dengan WhatsApp</h3>
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Buka WhatsApp → Perangkat Tertaut → Tautkan Perangkat → Scan QR.</p>
+              <button class="btn btn-outline" onclick="App.reconnect()"><i class="fas fa-rotate"></i> Reconnect</button>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:12px;"><i class="fas fa-info-circle"></i> QR otomatis di-refresh oleh WhatsApp setiap ~20 detik.</p>
+            </div>
+          </div>
+
+          <div id="tab-pairing" class="connection-grid" style="display:none;">
+            <div>
+              <h3 style="font-size:18px;margin-bottom:8px;">Kode Pairing</h3>
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Nomor format internasional tanpa + (contoh: 6281234567890).</p>
+              <div class="form-group">
+                <input type="tel" id="phoneNumber" class="form-control" placeholder="6281234567890">
+              </div>
+              <button class="btn btn-dark btn-full" id="pairBtn" onclick="App.requestPairingCode()"><i class="fas fa-key"></i> Minta Kode</button>
+            </div>
+            <div class="qr-box">
+              <div id="pairingPlaceholder" style="text-align:center;color:#aaa;">
+                <i class="fas fa-mobile-alt" style="font-size:40px;margin-bottom:12px;"></i>
+                <p style="font-size:12px;">Kode akan muncul di sini</p>
+              </div>
+              <div class="code-display" id="codeDisplay" style="display:none;margin:0;">
+                <p style="font-size:12px;color:#888;">Kode Pairing</p>
+                <div class="code-value" id="pairingCode">- - - -</div>
+                <p style="font-size:11px;color:#888;margin-top:8px;">WhatsApp → Perangkat Tertaut → Tautkan dengan nomor telepon</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI SETTINGS -->
+    <section id="view-ai-settings" class="view-section">
+      <div class="card">
+        <h3 style="font-size:18px;font-weight:600;margin-bottom:24px;">
+          <i class="fas fa-brain" style="color:#4285F4;"></i> Konfigurasi HunzAI-O51W
+        </h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Model AI Gemini</label>
+            <select class="form-control" id="aiModel">
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Rekomendasi — Cepat)</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro (Paling Cerdas)</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>API Key Google Gemini</label>
+            <input type="password" class="form-control" id="aiApiKey" placeholder="AIzaSy...">
+            <p class="form-hint" id="apiKeyStatus"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>System Prompt (Instruksi HunzAI-O51W)</label>
+          <textarea class="form-control" id="aiPrompt" rows="5"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Temperature: <span id="tempValue">0.7</span></label>
+            <input type="range" id="aiTemp" min="0" max="2" step="0.1" value="0.7" style="width:100%;margin-top:8px;">
+          </div>
+          <div class="form-group">
+            <label>Max Tokens</label>
+            <input type="number" class="form-control" id="aiTokens" value="500" min="50" max="8000">
+          </div>
+        </div>
+        <div class="toggle-wrapper">
+          <div><h4>Balasan Otomatis HunzAI-O51W</h4><p>Bot otomatis membalas pesan masuk</p></div>
+          <label class="toggle-switch"><input type="checkbox" id="autoReply" checked><span class="slider"></span></label>
+        </div>
+        <button class="btn btn-dark" onclick="App.saveAISettings()"><i class="fas fa-save"></i> Simpan</button>
+      </div>
+    </section>
+
+    <!-- CHATS -->
+    <section id="view-chats" class="view-section">
+      <div class="chat-view-container">
+        <div class="chat-list-sidebar">
+          <div class="chat-list-header">
+            <h3>Percakapan</h3>
+            <input type="text" class="chat-search" id="chatSearch" placeholder="Cari kontak...">
+          </div>
+          <div class="chat-list-items" id="chatListItems"></div>
+        </div>
+        <div class="chat-window" id="chatWindow">
+          <div class="empty-state" style="margin:auto;">
+            <i class="fas fa-comments"></i>
+            <h3>Pilih Percakapan</h3>
+            <p>Pilih kontak di samping untuk melihat chat</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section id="view-contacts" class="view-section">
+      <div class="card">
+        <div class="sidebar-header">
+          <h3>Daftar Kontak (<span id="contactCount">0</span>)</h3>
+          <button class="btn btn-outline btn-sm" onclick="App.loadContacts()"><i class="fas fa-rotate"></i> Refresh</button>
+        </div>
+        <div id="contactGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="right-sidebar">
+    <div class="card" style="padding:16px;">
+      <div class="sidebar-header">
+        <h3>Status Sistem</h3>
+        <span class="badge" id="systemStatusBadge" style="background:#ffebee;color:var(--danger);">OFFLINE</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:#888;">Koneksi WA</span><span style="font-weight:600;" id="sidebarConnStatus">-</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:#888;">Socket</span><span style="font-weight:600;" id="sidebarSocketStatus">-</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:#888;">AI Model</span><span style="font-weight:600;" id="sidebarAIModel">-</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <span style="color:#888;">Uptime</span><span style="font-weight:600;" id="sidebarUptime">0s</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="sidebar-header">
+        <h3>Chat Terbaru</h3>
+        <i class="fas fa-ellipsis-h" style="cursor:pointer;" onclick="App.showView('view-chats')"></i>
+      </div>
+      <div class="chat-list" id="sidebarChatList">
+        <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">Belum ada chat</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="sidebar-header"><h3>Tentang</h3></div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#888;">Website</span><span style="font-weight:600;">HunzWeb-O51W</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#888;">AI Engine</span><span style="font-weight:600;">HunzAI-O51W</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#888;">Provider</span><span style="font-weight:600;">Google Gemini</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#888;">Version</span><span style="font-weight:600;">v2.0.0</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/app.js"></script>
+</body>
+  </html>
