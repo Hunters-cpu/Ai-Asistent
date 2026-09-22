@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm install
+      - name: Check syntax
+        run: |
+          node -c server.js
+          node -c services/ai-service.js
+          node -c services/wa-service.js
+          node -c routes/api.js
+          node -c config/index.js
+      - name: Run tests
+        run: npm test
+        env:
+          GEMINI_API_KEY: test_key
+      - name: Verify structure
+        run: |
+          test -f public/index.html
+          test -f public/css/style.css
+          test -f public/js/app.js
+          test -f README.md
+          test -f LICENSE
